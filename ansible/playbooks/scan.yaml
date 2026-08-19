@@ -41,10 +41,10 @@
         dest: /tmp/security_check/
         mode: '0755'
       with_fileglob:
-        - "{{ playbook_dir }}/../scripts/ubuntu/acc/*_check.sh"
+        - "{{ playbook_dir }}/../scripts/ubuntu/account/*_check.sh"
         - "{{ playbook_dir }}/../scripts/ubuntu/file/*_check.sh"
-        - "{{ playbook_dir }}/../scripts/ubuntu/ser/*_check.sh"
-        - "{{ playbook_dir }}/../scripts/ubuntu/pat/*_check.sh"
+        - "{{ playbook_dir }}/../scripts/ubuntu/service/*_check.sh"
+        - "{{ playbook_dir }}/../scripts/ubuntu/patch/*_check.sh"
         - "{{ playbook_dir }}/../scripts/ubuntu/log/*_check.sh"
       when: ansible_distribution == "Ubuntu"
 
@@ -58,10 +58,10 @@
         dest: /tmp/security_check/
         mode: '0755'
       with_fileglob:
-        - "{{ playbook_dir }}/../scripts/rocky/acc/*_check.sh"
+        - "{{ playbook_dir }}/../scripts/rocky/account/*_check.sh"
         - "{{ playbook_dir }}/../scripts/rocky/file/*_check.sh"
-        - "{{ playbook_dir }}/../scripts/rocky/ser/*_check.sh"
-        - "{{ playbook_dir }}/../scripts/rocky/pat/*_check.sh"
+        - "{{ playbook_dir }}/../scripts/rocky/service/*_check.sh"
+        - "{{ playbook_dir }}/../scripts/rocky/patch/*_check.sh"
         - "{{ playbook_dir }}/../scripts/rocky/log/*_check.sh"
       when: ansible_distribution == "Rocky"
 
