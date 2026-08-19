@@ -1,0 +1,13 @@
+all:
+  children:
+    
+    rocky:
+      hosts:
+        100.99.205.100:    # rockyweb
+        100.97.90.7:       # rocky10-target
+        100.114.168.92:    # rocky9-target
+    
+    ubuntu:
+      hosts:      
+        100.86.68.51:      # ubuntu24
+        100.118.210.80:    # ubuntu26
