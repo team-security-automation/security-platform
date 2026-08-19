@@ -28,8 +28,8 @@ if [ -z "$stale" ]; then
   STATUS="양호"; CURRENT_VALUE="없음"
   EVIDENCE="최근 ${THRESHOLD_DAYS}일 이내에 로그인 기록이 없는 계정이 없습니다. 모든 상시 로그인 가능 계정이 실제로 사용 중임이 확인되어 관리 사각지대가 없습니다."
 else
-  STATUS="취약"; CURRENT_VALUE="$stale"
-  EVIDENCE="최근 ${THRESHOLD_DAYS}일 이상 로그인 기록이 없는 계정이 발견되었습니다: ${stale}. 장기 미사용 계정은 관리자의 감시망에서 벗어나 있어, 공격자가 탈취해도 오래 발각되지 않을 위험이 있습니다."
+  STATUS="수동확인"; CURRENT_VALUE="$stale"
+  EVIDENCE="최근 ${THRESHOLD_DAYS}일 이상 로그인 기록이 없는 계정이 발견되었습니다: ${stale}. 다만 배치 작업이나 서비스 전용 계정일 수 있어, 실제 사용 여부를 부서 담당자가 확인해야 삭제/잠금 여부를 최종 판단할 수 있습니다."
 fi
 EXPECTED_VALUE="장기 미사용 계정 없음(최근 ${THRESHOLD_DAYS}일 이내 로그인)"
 
