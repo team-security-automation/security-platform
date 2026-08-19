@@ -1,7 +1,16 @@
 #!/bin/bash
 source "$(dirname "$0")/../../common/json_output.sh"
-CHECK_ID="U-05"; CATEGORY="계정관리"
-EVIDENCE="root 외 UID 0 계정은 은밀한 백도어 관리자 계정으로 악용될 수 있습니다."
-extra_root=$(awk -F: '$3==0 && $1!="root" {print $1}' /etc/passwd)
-if [ -z "$extra_root" ]; then status="양호"; current="없음"; else status="취약"; current="$extra_root"; fi
-print_json "$CHECK_ID" "$CATEGORY" "$status" "$current" "root만 UID 0" "$EVIDENCE"
+CHECK_ID="U-05"; CATEGORY="계정관리"; RISK_LEVEL="상"; IS_AUTO_FIXABLE="false"
+
+extra_root=$(awk -F: '$3==0 && $1!="root" {print $1}' /etc/passwd | tr '\n' ',' | sed 's/,$//; s/,/, /g')
+
+if [ -z "$extra_root" ]; then
+  STATUS="양호"; CURRENT_VALUE="없음"
+  EVIDENCE="/etc/passwd에 root 외 UID 0을 가진 계정이 없습니다. 최고 권한 계정이 root 하나로 유지되고 있어 은닉 관리자 계정을 통한 백도어 위험이 없습니다."
+else
+  STATUS="취약"; CURRENT_VALUE="$extra_root"
+  EVIDENCE="/etc/passwd에서 root 외에 UID 0을 가진 계정이 발견되었습니다: ${extra_root}. UID 0은 root와 동일한 최고 권한을 의미하므로 해당 계정은 은닉된 백도어 관리자 계정일 수 있습니다."
+fi
+EXPECTED_VALUE="root만 UID 0"
+
+print_json
