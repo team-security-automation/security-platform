@@ -4,7 +4,8 @@ BACKUP_PATH="/etc/shadow.bak.$(date +%Y%m%d_%H%M%S)"
 FIX_STATUS="실패"
 REVERIFIED_STATUS="취약"
 
-cp -p /etc/shadow "$BACKUP_PATH" 2>/dev/null
+cp /etc/shadow "$BACKUP_PATH" 2>/dev/null
+chmod 400 "$BACKUP_PATH" 2>/dev/null
 
 if [ -f "$BACKUP_PATH" ]; then
   chmod 400 /etc/shadow
