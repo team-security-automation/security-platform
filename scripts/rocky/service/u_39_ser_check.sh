@@ -8,17 +8,30 @@ EXPECTED_VALUE="불필요한 NFS 서비스 비활성화"
 RISK_LEVEL="상"
 IS_AUTO_FIXABLE=false
 
+json_escape() {
+    local s="$1"
+    s="${s//\\/\\\\}"
+    s="${s//\"/\\\"}"
+    s="${s//$'\t'/\\t}"
+    s="${s//$'\r'/}"
+    s="${s//$'\n'/\\n}"
+    printf '%s' "$s"
+}
+
 emit_json() {
     STATUS="수동확인"
 
+    local _current_value _evidence
+    _current_value=$(json_escape "$CURRENT_VALUE")
+    _evidence=$(json_escape "$EVIDENCE")
     cat <<EOF
 {
   "check_id": "$CHECK_ID",
   "category": "$CATEGORY",
   "status": "$STATUS",
-  "current_value": "$CURRENT_VALUE",
+  "current_value": "$_current_value",
   "expected_value": "$EXPECTED_VALUE",
-  "evidence": "$EVIDENCE",
+  "evidence": "$_evidence",
   "hostname": "$(hostname)",
   "risk_level": "$RISK_LEVEL",
   "is_auto_fixable": $IS_AUTO_FIXABLE
