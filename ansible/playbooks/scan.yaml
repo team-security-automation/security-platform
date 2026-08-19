@@ -120,6 +120,32 @@
       loop: "{{ scan_results.results }}"
       when: item.rc != 0
 
+        # ==================================================
+    # JSON 진단 결과 생성
+    # ==================================================
+
+    - name: JSON 진단 결과 목록 초기화
+      set_fact:
+        scan_json_results: []
+        
+
+    - name: 정상 진단 결과 JSON 목록 생성
+      set_fact:
+        scan_json_results: "{{ scan_json_results + [item.stdout | from_json] }}"
+      loop: "{{ scan_results.results }}"
+      when: item.rc == 0
+
+    # ==================================================
+    # JSON 진단 결과 Controller 저장
+    # ==================================================
+
+    - name: 진단 결과 JSON 로컬 저장
+      copy:
+        dest: "{{ playbook_dir }}/../results/{{ inventory_hostname }}_scan.json"
+        content: "{{ scan_json_results | to_nice_json }}"
+      delegate_to: localhost
+      become: no 
+
     # ==================================================
     # Controller에 결과 저장
     # ==================================================
