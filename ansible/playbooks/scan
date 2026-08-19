@@ -1,0 +1,180 @@
+---
+- name: KISA vulnerability scan
+  hosts: all
+  gather_facts: true
+  become: yes
+
+  environment:
+    LANG: C
+
+  tasks:
+
+    # ==================================================
+    # 대상 서버 정보
+    # ==================================================
+
+    - name: 대상 서버 정보 확인
+      debug:
+        msg:
+          - "Target: {{ inventory_hostname }}"
+          - "Hostname: {{ ansible_hostname }}"
+          - "OS: {{ ansible_distribution }}"
+          - "Version: {{ ansible_distribution_version }}"
+
+    # ==================================================
+    # 임시 디렉토리 생성
+    # ==================================================
+
+    - name: 진단용 임시 디렉토리 생성
+      file:
+        path: /tmp/security_check
+        state: directory
+        mode: '0755'
+
+    # ==================================================
+    # Ubuntu 스크립트 전송
+    # ==================================================
+
+    - name: Ubuntu 진단 스크립트 전송
+      copy:
+        src: "{{ item }}"
+        dest: /tmp/security_check/
+        mode: '0755'
+      with_fileglob:
+        - "{{ playbook_dir }}/../scripts/ubuntu/acc/*_check.sh"
+        - "{{ playbook_dir }}/../scripts/ubuntu/file/*_check.sh"
+        - "{{ playbook_dir }}/../scripts/ubuntu/ser/*_check.sh"
+        - "{{ playbook_dir }}/../scripts/ubuntu/pat/*_check.sh"
+        - "{{ playbook_dir }}/../scripts/ubuntu/log/*_check.sh"
+      when: ansible_distribution == "Ubuntu"
+
+    # ==================================================
+    # Rocky 스크립트 전송
+    # ==================================================
+
+    - name: Rocky 진단 스크립트 전송
+      copy:
+        src: "{{ item }}"
+        dest: /tmp/security_check/
+        mode: '0755'
+      with_fileglob:
+        - "{{ playbook_dir }}/../scripts/rocky/acc/*_check.sh"
+        - "{{ playbook_dir }}/../scripts/rocky/file/*_check.sh"
+        - "{{ playbook_dir }}/../scripts/rocky/ser/*_check.sh"
+        - "{{ playbook_dir }}/../scripts/rocky/pat/*_check.sh"
+        - "{{ playbook_dir }}/../scripts/rocky/log/*_check.sh"
+      when: ansible_distribution == "Rocky"
+
+    # ==================================================
+    # 전송된 스크립트 검색
+    # ==================================================
+
+    - name: 전송된 진단 스크립트 찾기
+      find:
+        paths: /tmp/security_check
+        patterns: "*_check.sh"
+        file_type: file
+      register: check_scripts
+
+    # ==================================================
+    # 진단 실행
+    # ==================================================
+
+    - name: 진단 스크립트 실행
+      command: "{{ item.path }}"
+      loop: "{{ check_scripts.files | sort(attribute='path') }}"
+      register: scan_results
+      changed_when: false
+      failed_when: false
+
+    # ==================================================
+    # 정상 실행 결과
+    # ==================================================
+
+    - name: 정상 실행된 진단 결과 확인
+      debug:
+        msg:
+          - "Script: {{ item.item.path | basename }}"
+          - "Check ID: {{ result_json.check_id }}"
+          - "Status: {{ result_json.status }}"
+          - "Current Value: {{ result_json.current_value }}"
+          - "Evidence: {{ result_json.evidence }}"
+          - "Risk Level: {{ result_json.risk_level }}"
+          - "Auto Fixable: {{ result_json.is_auto_fixable | ternary('true', 'false') }}"
+      vars:
+        result_json: "{{ item.stdout | from_json }}"
+      loop: "{{ scan_results.results }}"
+      when: item.rc == 0
+
+    # ==================================================
+    # 실행 오류
+    # ==================================================
+
+    - name: 진단 스크립트 오류 확인
+      debug:
+        msg:
+          - "Script: {{ item.item.path | basename }}"
+          - "Status: 실행 오류"
+          - "RC: {{ item.rc }}"
+          - "Error: {{ item.stderr }}"
+      loop: "{{ scan_results.results }}"
+      when: item.rc != 0
+
+    # ==================================================
+    # Controller에 결과 저장
+    # ==================================================
+
+    - name: 진단 결과 로컬 저장
+      copy:
+        dest: "{{ playbook_dir }}/../results/{{ inventory_hostname }}_scan.txt"
+        content: |
+          ==================================================
+          KISA Vulnerability Scan Result
+          ==================================================
+
+          Target: {{ inventory_hostname }}
+          Hostname: {{ ansible_hostname }}
+          OS: {{ ansible_distribution }}
+          Version: {{ ansible_distribution_version }}
+
+          ==================================================
+
+          {% for result in scan_results.results %}
+
+          Script: {{ result.item.path | basename }}
+
+          {% if result.rc == 0 %}
+
+          {% set json = result.stdout | from_json %}
+
+          Check ID: {{ json.check_id }}
+          Category: {{ json.category }}
+          Status: {{ json.status }}
+          Current Value: {{ json.current_value }}
+          Expected Value: {{ json.expected_value }}
+          Evidence: {{ json.evidence }}
+          Risk Level: {{ json.risk_level }}
+          Auto Fixable: {{ json.is_auto_fixable | ternary('true', 'false') }}
+
+          {% else %}
+
+          Status: 실행 오류
+          RC: {{ result.rc }}
+          Error: {{ result.stderr }}
+
+          {% endif %}
+
+          --------------------------------------------------
+
+          {% endfor %}
+      delegate_to: localhost
+      become: no
+
+    # ==================================================
+    # 임시 파일 삭제
+    # ==================================================
+
+    - name: 진단용 임시 디렉토리 삭제
+      file:
+        path: /tmp/security_check
+        state: absent
