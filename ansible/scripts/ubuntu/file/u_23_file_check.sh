@@ -1,19 +1,12 @@
 #!/bin/bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common/json_output.sh"
 # ============================================================
 # U-23 (상) SUID, SGID, Sticky bit 설정 파일 점검
 # 분류: 파일 및 디렉터리 관리 | 대상: Ubuntu (ubuntu)
 # 근거: 2026 주요정보통신기반시설 기술적 취약점 분석평가 방법 상세가이드(KISA)
 # 실행: sudo bash u_23_file_check.sh
 # ============================================================
-
-# JSON 이스케이프 유틸 (따옴표/개행 처리)
-json_esc() {
-    local s="$1"
-    s="${s//\\/\\\\}"
-    s="${s//\"/\\\"}"
-    s="$(printf '%s' "$s" | tr '\n' ' ')"
-    printf '%s' "$s"
-}
 
 # ============================================================
 # 1. 기본 정보
@@ -22,7 +15,7 @@ CHECK_ID="U-23"
 CATEGORY="파일 및 디렉터리 관리"
 EXPECTED_VALUE="표준 목록 외 SUID/SGID 설정 파일 없음"
 RISK_LEVEL="상"
-
+IS_AUTO_FIXABLE="false"
 # ============================================================
 # 2. 진단 명령 실행 / 3. 결과 처리 / 4. 양호·취약 판단
 # ============================================================
@@ -44,21 +37,7 @@ else
     STATUS="취약"; CURRENT_VALUE="표준 목록 외 SUID/SGID 파일 ${SUSPECT_COUNT}건(전체 ${FOUND_COUNT}건)"; EVIDENCE="예시: $SUSPECT_SAMPLES"
 fi
 
-# ============================================================
-# 5. JSON 출력
-# ============================================================
-cat <<EOF
-{
-  "check_id": "$(json_esc "$CHECK_ID")",
-  "category": "$(json_esc "$CATEGORY")",
-  "status": "$(json_esc "$STATUS")",
-  "current_value": "$(json_esc "$CURRENT_VALUE")",
-  "expected_value": "$(json_esc "$EXPECTED_VALUE")",
-  "evidence": "$(json_esc "$EVIDENCE")",
-  "hostname": "$(hostname)",
-  "risk_level": "$(json_esc "$RISK_LEVEL")"
-}
-EOF
+print_json
 
 # ============================================================
 # 6. 정상 종료

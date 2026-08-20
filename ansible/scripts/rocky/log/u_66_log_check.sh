@@ -1,4 +1,6 @@
 #!/bin/bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common/json_output.sh"
 # Manual-review item: 정보 수집용 스크립트
 # 정상 실행 시 status는 항상 '수동확인'이며, CURRENT_VALUE/EVIDENCE를 사람이 검토합니다.
 
@@ -6,39 +8,7 @@ CHECK_ID="U-66"
 CATEGORY="로그관리"
 EXPECTED_VALUE="내부 보안 정책에 따라 시스템 로깅 설정 및 로그 기록"
 RISK_LEVEL="중"
-IS_AUTO_FIXABLE=false
-
-json_escape() {
-    local s="$1"
-    s="${s//\\/\\\\}"
-    s="${s//\"/\\\"}"
-    s="${s//$'\t'/\\t}"
-    s="${s//$'\r'/}"
-    s="${s//$'\n'/\\n}"
-    printf '%s' "$s"
-}
-
-emit_json() {
-    STATUS="수동확인"
-
-    local _current_value _evidence
-    _current_value=$(json_escape "$CURRENT_VALUE")
-    _evidence=$(json_escape "$EVIDENCE")
-    cat <<EOF
-{
-  "check_id": "$CHECK_ID",
-  "category": "$CATEGORY",
-  "status": "$STATUS",
-  "current_value": "$_current_value",
-  "expected_value": "$EXPECTED_VALUE",
-  "evidence": "$_evidence",
-  "hostname": "$(hostname)",
-  "risk_level": "$RISK_LEVEL",
-  "is_auto_fixable": $IS_AUTO_FIXABLE
-}
-EOF
-}
-
+IS_AUTO_FIXABLE="false"
 fail() {
     echo "$CHECK_ID: $*" >&2
     exit 2
@@ -131,5 +101,5 @@ else
     EVIDENCE="rsyslog=${RSYSLOG}; 설정=$(printf '%s' "$CONF_LINES" | head -n 30); 최종 양호 판정에는 조직 내부 로깅 정책과의 일치 여부 확인 필요"
 fi
 
-emit_json
+print_json
 exit 0

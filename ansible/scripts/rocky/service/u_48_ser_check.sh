@@ -1,4 +1,6 @@
 #!/bin/bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common/json_output.sh"
 # KISA 2026 U-48 - expn, vrfy 명령어 제한
 # Target: Rocky Linux 9/10
 # stdout: successful diagnosis JSON only / stderr: diagnosis errors only
@@ -8,37 +10,7 @@ CHECK_ID="U-48"
 CATEGORY="서비스 관리"
 EXPECTED_VALUE="SMTP expn/vrfy 명령 제한"
 RISK_LEVEL="중"
-IS_AUTO_FIXABLE=true
-
-json_escape() {
-    local s="$1"
-    s="${s//\\/\\\\}"
-    s="${s//\"/\\\"}"
-    s="${s//$'\t'/\\t}"
-    s="${s//$'\r'/}"
-    s="${s//$'\n'/\\n}"
-    printf '%s' "$s"
-}
-
-emit_json() {
-    local _current_value _evidence
-    _current_value=$(json_escape "$CURRENT_VALUE")
-    _evidence=$(json_escape "$EVIDENCE")
-    cat <<EOF
-{
-  "check_id": "$CHECK_ID",
-  "category": "$CATEGORY",
-  "status": "$STATUS",
-  "current_value": "$_current_value",
-  "expected_value": "$EXPECTED_VALUE",
-  "evidence": "$_evidence",
-  "hostname": "$(hostname)",
-  "risk_level": "$RISK_LEVEL",
-  "is_auto_fixable": $IS_AUTO_FIXABLE
-}
-EOF
-}
-
+IS_AUTO_FIXABLE="false"
 fail() {
     echo "$CHECK_ID: $*" >&2
     exit 2
@@ -107,7 +79,7 @@ if [ -z "$SENDMAIL$POSTFIX$EXIM" ]; then
     STATUS="양호"
     CURRENT_VALUE="메일 서비스 비활성화"
     EVIDENCE="실행 중인 Sendmail/Postfix/Exim 서비스가 확인되지 않음"
-    emit_json
+    print_json
     exit 0
 fi
 
@@ -176,5 +148,5 @@ else
     EVIDENCE="$(printf '%s; ' "${OK[@]}")"
 fi
 
-emit_json
+print_json
 exit 0

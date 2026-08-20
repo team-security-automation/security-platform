@@ -1,4 +1,6 @@
 #!/bin/bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common/json_output.sh"
 # KISA 2026 U-67 - 로그 디렉터리 소유자 및 권한 설정
 # Target: Ubuntu 24/26
 # stdout: successful diagnosis JSON only / stderr: diagnosis errors only
@@ -8,37 +10,7 @@ CHECK_ID="U-67"
 CATEGORY="로그 관리"
 EXPECTED_VALUE="/var/log 내 로그 파일 root 소유 및 권한 644 이하"
 RISK_LEVEL="중"
-IS_AUTO_FIXABLE=true
-
-json_escape() {
-    local s="$1"
-    s="${s//\\/\\\\}"
-    s="${s//\"/\\\"}"
-    s="${s//$'\t'/\\t}"
-    s="${s//$'\r'/}"
-    s="${s//$'\n'/\\n}"
-    printf '%s' "$s"
-}
-
-emit_json() {
-    local _current_value _evidence
-    _current_value=$(json_escape "$CURRENT_VALUE")
-    _evidence=$(json_escape "$EVIDENCE")
-    cat <<EOF
-{
-  "check_id": "$CHECK_ID",
-  "category": "$CATEGORY",
-  "status": "$STATUS",
-  "current_value": "$_current_value",
-  "expected_value": "$EXPECTED_VALUE",
-  "evidence": "$_evidence",
-  "hostname": "$(hostname)",
-  "risk_level": "$RISK_LEVEL",
-  "is_auto_fixable": $IS_AUTO_FIXABLE
-}
-EOF
-}
-
+IS_AUTO_FIXABLE="false"
 fail() {
     echo "$CHECK_ID: $*" >&2
     exit 2
@@ -125,5 +97,5 @@ else
     EVIDENCE="$(printf '%s; ' "${ISSUES[@]:0:20}")"
 fi
 
-emit_json
+print_json
 exit 0

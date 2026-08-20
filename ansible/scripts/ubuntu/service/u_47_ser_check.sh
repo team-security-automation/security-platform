@@ -1,4 +1,6 @@
 #!/bin/bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common/json_output.sh"
 # Manual-review item: 정보 수집용 스크립트
 # 정상 실행 시 status는 항상 '수동확인'이며, CURRENT_VALUE/EVIDENCE를 사람이 검토합니다.
 
@@ -6,39 +8,7 @@ CHECK_ID="U-47"
 CATEGORY="서비스관리"
 EXPECTED_VALUE="SMTP 릴레이 제한 또는 릴레이 대상 접근 제어 설정"
 RISK_LEVEL="상"
-IS_AUTO_FIXABLE=false
-
-json_escape() {
-    local s="$1"
-    s="${s//\\/\\\\}"
-    s="${s//\"/\\\"}"
-    s="${s//$'\t'/\\t}"
-    s="${s//$'\r'/}"
-    s="${s//$'\n'/\\n}"
-    printf '%s' "$s"
-}
-
-emit_json() {
-    STATUS="수동확인"
-
-    local _current_value _evidence
-    _current_value=$(json_escape "$CURRENT_VALUE")
-    _evidence=$(json_escape "$EVIDENCE")
-    cat <<EOF
-{
-  "check_id": "$CHECK_ID",
-  "category": "$CATEGORY",
-  "status": "$STATUS",
-  "current_value": "$_current_value",
-  "expected_value": "$EXPECTED_VALUE",
-  "evidence": "$_evidence",
-  "hostname": "$(hostname)",
-  "risk_level": "$RISK_LEVEL",
-  "is_auto_fixable": $IS_AUTO_FIXABLE
-}
-EOF
-}
-
+IS_AUTO_FIXABLE="false"
 fail() {
     echo "$CHECK_ID: $*" >&2
     exit 2
@@ -107,7 +77,7 @@ if [ -z "$SENDMAIL$POSTFIX$EXIM" ]; then
     STATUS="양호"
     CURRENT_VALUE="메일 서비스 비활성화"
     EVIDENCE="실행 중인 Sendmail/Postfix/Exim 서비스가 확인되지 않음"
-    emit_json
+    print_json
     exit 0
 fi
 
@@ -181,5 +151,5 @@ else
     EVIDENCE="$(printf '%s; ' "${OK[@]}")"
 fi
 
-emit_json
+print_json
 exit 0

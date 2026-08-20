@@ -1,19 +1,12 @@
 #!/bin/bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common/json_output.sh"
 # ============================================================
 # U-49 (상) DNS 보안 버전 패치
 # 분류: 서비스관리 | 대상: Ubuntu (ubuntu)
 # 근거: 2026 주요정보통신기반시설 기술적 취약점 분석평가 방법 상세가이드(KISA)
 # 실행: sudo bash u_49_ser_check.sh
 # ============================================================
-
-# JSON 이스케이프 유틸 (따옴표/개행 처리)
-json_esc() {
-    local s="$1"
-    s="${s//\\/\\\\}"
-    s="${s//\"/\\\"}"
-    s="$(printf '%s' "$s" | tr '\n' ' ')"
-    printf '%s' "$s"
-}
 
 # ============================================================
 # 1. 기본 정보
@@ -22,7 +15,7 @@ CHECK_ID="U-49"
 CATEGORY="서비스관리"
 EXPECTED_VALUE="DNS 미사용 또는 최신 버전으로 주기적 패치 관리 중"
 RISK_LEVEL="상"
-
+IS_AUTO_FIXABLE="true"
 # ============================================================
 # 2. 진단 명령 실행 / 3. 결과 처리 / 4. 양호·취약 판단
 # ============================================================
@@ -53,21 +46,7 @@ else
     EVIDENCE="DNS 서비스 활성 중. ISC 취약점 목록(https://kb.isc.org/v1/docs/en/aa-00913) 대조 및 패치 정책 수립 여부는 수동 확인 필요"
 fi
 
-# ============================================================
-# 5. JSON 출력
-# ============================================================
-cat <<EOF
-{
-  "check_id": "$(json_esc "$CHECK_ID")",
-  "category": "$(json_esc "$CATEGORY")",
-  "status": "$(json_esc "$STATUS")",
-  "current_value": "$(json_esc "$CURRENT_VALUE")",
-  "expected_value": "$(json_esc "$EXPECTED_VALUE")",
-  "evidence": "$(json_esc "$EVIDENCE")",
-  "hostname": "$(hostname)",
-  "risk_level": "$(json_esc "$RISK_LEVEL")"
-}
-EOF
+print_json
 
 # ============================================================
 # 6. 정상 종료

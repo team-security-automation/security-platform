@@ -1,4 +1,6 @@
 #!/bin/bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common/json_output.sh"
 # Manual-review item: 정보 수집용 스크립트
 # 정상 실행 시 status는 항상 '수동확인'이며, CURRENT_VALUE/EVIDENCE를 사람이 검토합니다.
 
@@ -6,39 +8,7 @@ CHECK_ID="U-39"
 CATEGORY="서비스관리"
 EXPECTED_VALUE="불필요한 NFS 서비스 비활성화"
 RISK_LEVEL="상"
-IS_AUTO_FIXABLE=false
-
-json_escape() {
-    local s="$1"
-    s="${s//\\/\\\\}"
-    s="${s//\"/\\\"}"
-    s="${s//$'\t'/\\t}"
-    s="${s//$'\r'/}"
-    s="${s//$'\n'/\\n}"
-    printf '%s' "$s"
-}
-
-emit_json() {
-    STATUS="수동확인"
-
-    local _current_value _evidence
-    _current_value=$(json_escape "$CURRENT_VALUE")
-    _evidence=$(json_escape "$EVIDENCE")
-    cat <<EOF
-{
-  "check_id": "$CHECK_ID",
-  "category": "$CATEGORY",
-  "status": "$STATUS",
-  "current_value": "$_current_value",
-  "expected_value": "$EXPECTED_VALUE",
-  "evidence": "$_evidence",
-  "hostname": "$(hostname)",
-  "risk_level": "$RISK_LEVEL",
-  "is_auto_fixable": $IS_AUTO_FIXABLE
-}
-EOF
-}
-
+IS_AUTO_FIXABLE="false"
 fail() {
     echo "$CHECK_ID: $*" >&2
     exit 2
@@ -111,5 +81,5 @@ else
     EVIDENCE="활성 서비스=${NFS}; KISA 항목은 '불필요한' NFS 사용 여부를 판단하므로 실제 업무상 필요 여부 확인 필요"
 fi
 
-emit_json
+print_json
 exit 0
