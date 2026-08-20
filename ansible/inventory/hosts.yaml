@@ -1,13 +1,15 @@
-all:
-  children:
-    
-    rocky:
-      hosts:
-        100.99.205.100:    # rockyweb
-        100.97.90.7:       # rocky10-target
-        100.114.168.92:    # rocky9-target
-    
-    ubuntu:
-      hosts:      
-        100.86.68.51:      # ubuntu24
-        100.118.210.80:    # ubuntu26
+rocky:
+  hosts:
+    100.99.205.100:      # rockyweb
+      ansible_user: rockyweb        # 실제 계정명으로 교체
+    100.97.90.7:         # rocky10-target
+      ansible_user: rocky10
+    100.114.168.92:      # rocky9-target
+      ansible_user: rocky9
+
+ubuntu:
+  hosts:
+    100.86.68.51:         # ubuntu24
+      ansible_user: ubuntu24
+    100.118.210.80:       # ubuntu26
+      ansible_user: ubuntu26
