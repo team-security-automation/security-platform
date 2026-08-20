@@ -1,5 +1,6 @@
 #!/bin/bash
-source "$(dirname "$0")/../../common/json_output.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common/json_output.sh"
 CHECK_ID="U-13"; CATEGORY="계정관리"; RISK_LEVEL="중"; IS_AUTO_FIXABLE="true"
 
 method=$(grep -E "^\s*ENCRYPT_METHOD" /etc/login.defs 2>/dev/null | awk '{print $2}')

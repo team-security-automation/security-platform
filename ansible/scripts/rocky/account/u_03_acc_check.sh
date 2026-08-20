@@ -1,5 +1,6 @@
 #!/bin/bash
-source "$(dirname "$0")/../../common/json_output.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common/json_output.sh"
 CHECK_ID="U-03"; CATEGORY="계정관리"; RISK_LEVEL="상"; IS_AUTO_FIXABLE="false"
 
 if grep -q "pam_faillock" /etc/pam.d/system-auth 2>/dev/null; then

@@ -1,5 +1,6 @@
 #!/bin/bash
-source "$(dirname "$0")/../common/json_output.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common/json_output.sh"
 CHECK_ID="WEB-07"; CATEGORY="웹서비스"; RISK_LEVEL="중"; IS_AUTO_FIXABLE="false"
 
 found=$(find /var/www/html \( -iname "*manual*" -o -iname "*sample*" -o -iname "*.bak" -o -iname "*.old" \) 2>/dev/null | tr '\n' ',' | sed 's/,$//; s/,/, /g')

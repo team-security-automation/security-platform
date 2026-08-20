@@ -1,5 +1,6 @@
 #!/bin/bash
-source "$(dirname "$0")/../../common/json_output.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common/json_output.sh"
 CHECK_ID="U-12"; CATEGORY="계정관리"; RISK_LEVEL="하"; IS_AUTO_FIXABLE="true"
 
 tmout=$(grep -E "^\s*TMOUT=" /etc/profile 2>/dev/null | tail -1 | awk -F= '{print $2}' | tr -d '; ')

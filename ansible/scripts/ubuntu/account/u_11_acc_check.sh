@@ -1,5 +1,6 @@
 #!/bin/bash
-source "$(dirname "$0")/../../common/json_output.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common/json_output.sh"
 CHECK_ID="U-11"; CATEGORY="계정관리"; RISK_LEVEL="하"; IS_AUTO_FIXABLE="true"
 
 bad=$(awk -F: '$3<1000 && $1!="root" && ($7=="/bin/bash"||$7=="/bin/sh") {print $1}' /etc/passwd | tr '\n' ',' | sed 's/,$//; s/,/, /g')

@@ -1,5 +1,6 @@
 #!/bin/bash
-source "$(dirname "$0")/../common/json_output.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common/json_output.sh"
 CHECK_ID="WEB-12"; CATEGORY="웹서비스"; RISK_LEVEL="중"; IS_AUTO_FIXABLE="true"
 
 options=$(grep -iE "^\s*Options" /etc/httpd/conf/httpd.conf 2>/dev/null | tr '\n' ' ')

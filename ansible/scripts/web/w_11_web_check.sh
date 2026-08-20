@@ -1,5 +1,6 @@
 #!/bin/bash
-source "$(dirname "$0")/../common/json_output.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common/json_output.sh"
 CHECK_ID="WEB-11"; CATEGORY="웹서비스"; RISK_LEVEL="상"; IS_AUTO_FIXABLE="false"
 
 docroot=$(httpd -S 2>/dev/null | grep -i "DocumentRoot" | head -1 | sed -E 's/.*DocumentRoot="?([^"]*)"?.*/\1/')

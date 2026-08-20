@@ -1,5 +1,6 @@
 #!/bin/bash
-source "$(dirname "$0")/../common/json_output.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common/json_output.sh"
 CHECK_ID="WEB-17"; CATEGORY="웹서비스"; RISK_LEVEL="중"; IS_AUTO_FIXABLE="true"
 
 found=$(grep -iE "^\s*Alias\s+/(icons|manual)" /etc/httpd/conf/httpd.conf /etc/httpd/conf.d/*.conf 2>/dev/null | tr '\n' ',' | sed 's/,$//; s/,/, /g')

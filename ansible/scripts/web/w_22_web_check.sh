@@ -1,5 +1,6 @@
 #!/bin/bash
-source "$(dirname "$0")/../common/json_output.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common/json_output.sh"
 CHECK_ID="WEB-22"; CATEGORY="웹서비스"; RISK_LEVEL="하"; IS_AUTO_FIXABLE="true"
 
 codes="400 401 403 404 500"
